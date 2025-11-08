@@ -4,9 +4,14 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+copypasta = "0.8"
+glium = { version = "0.35.0", default-features = true }
+image = "0.23"
+
+imgui-glium-renderer = { version = "0.13.0", git = "https://github.com/imgui-rs/imgui-glium-renderer" }
+imgui = { git = "https://github.com/imgui-rs/imgui-rs", version = "0.12", features = [
+    "tables-api",
+] }
+imgui-winit-support = { version = "0.13", git = "https://github.com/imgui-rs/imgui-winit-support" }
+rand = "0.10.0-rc.0"
 lazy_static = "1.5.0"
-imgui = "0.12.0"
-copypasta = "0.10.2"
-glium = "0.36.0"
-imgui-glium-renderer = "0.13.0"
-imgui-winit-support = "0.13.0"

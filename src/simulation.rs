@@ -14,6 +14,6 @@ impl SimState{
 }
 
 
-pub fn simulation_step(sim_state_mutex: &mut SimState){
-
+pub fn simulation_step(sim_state: &mut SimState){
+    sim_state.step += 1;
 }
