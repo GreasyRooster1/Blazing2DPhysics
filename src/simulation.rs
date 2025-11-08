@@ -1,7 +1,6 @@
 use std::sync::Mutex;
 
 pub struct SimState{
-
     pub(crate) step:u32,
 }
 
