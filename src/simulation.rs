@@ -1,5 +1,6 @@
 use std::sync::Mutex;
 use glam::Vec2;
+use rand::Rng;
 
 pub struct SimState{
     pub step:u32,
@@ -10,7 +11,7 @@ impl SimState{
     pub fn start() -> Self{
         SimState{
             step:0,
-            objects: vec![],
+            objects: create_random_objects(100),
         }
     }
 }
@@ -33,6 +34,20 @@ impl Object {
             radius:1.0,
         }
     }
+}
+
+pub fn create_random_objects(amt:i32) -> Vec<Object>{
+    let mut rng = rand::rng();
+    let mut objs = vec![];
+    for _ in 0..amt{
+        objs.push(Object::new(
+            Vec2::new(
+            rng.random_range(-5.0..5.0),
+            rng.random_range(-5.0..5.0)
+            )))
+    }
+
+    objs
 }
 
 pub fn simulation_step(sim_state: &mut SimState){
