@@ -8,7 +8,10 @@ use imgui_winit_support::winit::event_loop::EventLoop;
 use imgui_winit_support::winit::window::WindowAttributes;
 use imgui_winit_support::{HiDpiMode, WinitPlatform};
 use std::path::Path;
+use std::sync::Mutex;
 use std::time::Instant;
+use crate::sim_state_mutex;
+use crate::simulation::SimState;
 
 mod clipboard;
 
@@ -17,8 +20,8 @@ pub const FONT_SIZE: f32 = 18.0;
 #[allow(dead_code)] // annoyingly, RA yells that this is unusued
 pub fn simple_init<FUi, FRender>(title: &str,  mut run_ui: FUi, mut run_render: FRender)
 where
-    FUi: FnMut(&mut bool, &mut Ui) + 'static,
-    FRender: FnMut(&mut Frame) + 'static,
+    FUi: FnMut(&mut bool, &mut Ui, &mut SimState) + 'static,
+    FRender: FnMut(&mut Frame, &mut SimState) + 'static,
 {
     init_with_startup(title, |_, _, _| {}, run_ui, run_render);
 }
@@ -26,8 +29,8 @@ where
 pub fn init_with_startup<FInit, FUi, FRender>(title: &str, mut startup: FInit, mut run_ui: FUi, mut run_render: FRender)
 where
     FInit: FnMut(&mut Context, &mut Renderer, &Display<WindowSurface>) + 'static,
-    FUi: FnMut(&mut bool, &mut Ui) + 'static,
-    FRender: FnMut(&mut Frame) + 'static,
+    FUi: FnMut(&mut bool, &mut Ui, &mut SimState) + 'static,
+    FRender: FnMut(&mut Frame, &mut SimState) + 'static,
 {
     let mut imgui = create_context();
 
@@ -89,16 +92,19 @@ where
                 ..
             } => {
                 let ui = imgui.frame();
-
                 let mut run = true;
-                run_ui(&mut run, ui);
+
+                let mut sim_state = sim_state_mutex.lock().expect("Failed to lock sim_state");
+                run_ui(&mut run, ui,&mut sim_state);
                 if !run {
                     window_target.exit();
                 }
 
                 let mut target = display.draw();
                 target.clear_color(1.0, 0.5, 1.0, 1.0);
-                run_render(&mut target);
+
+                run_render(&mut target,&mut sim_state);
+                drop(sim_state);
 
                 platform.prepare_render(ui, &window);
                 let draw_data = imgui.render();

@@ -24,9 +24,11 @@ fn main() {
         }
     });
 
-    support::simple_init(file!(), move |_, ui| {
-        render_ui(ui,&mut *sim_state_mutex.lock().unwrap())
-    },render);
+    support::simple_init(file!(), move |_, ui,state| {
+        render_ui(ui,state)
+    }, |frame,state|{
+        render(frame,state);
+    });
 }
 
 fn render_ui(ui: &mut Ui,sim_state: &mut SimState){
