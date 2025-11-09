@@ -17,26 +17,6 @@ pub(crate) mod clipboard;
 
 pub const FONT_SIZE: f32 = 18.0;
 
-#[allow(dead_code)] // annoyingly, RA yells that this is unusued
-pub fn simple_init<FUi, FRender,FSetup>(title: &str,  mut run_ui: FUi, mut run_render: FRender, mut run_setup: FRender)
-where
-    FUi: FnMut(&mut bool, &mut Ui, &mut SimState) + 'static,
-    FRender: FnMut(&mut Frame, Display<WindowSurface>, &mut SimState) + 'static,
-    FSetup: FnMut(&mut Frame, Display<WindowSurface>, &mut SimState) + 'static,
-{
-    init_with_startup(title, |_, _, _| {}, run_ui, run_render,run_setup);
-}
-
-pub fn init_with_startup<FInit, FUi, FRender,FSetup>(title: &str, mut startup: FInit, mut run_ui: FUi, mut run_render: FRender, mut run_setup: FRender)
-where
-    FInit: FnMut(&mut Context, &mut Renderer, &Display<WindowSurface>) + 'static,
-    FUi: FnMut(&mut bool, &mut Ui, &mut SimState) + 'static,
-    FRender: FnMut(&mut Frame, Display<WindowSurface>, &mut SimState) + 'static,
-    FSetup: FnMut(&mut Frame, Display<WindowSurface>, &mut SimState) + 'static,
-{
-
-}
-
 /// Creates the imgui context
 pub fn create_context() -> imgui::Context {
     let mut imgui = Context::create();
