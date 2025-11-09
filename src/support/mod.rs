@@ -1,5 +1,5 @@
 use glium::glutin::surface::WindowSurface;
-use glium::{Display, Surface};
+use glium::{Display, Frame, Surface};
 use imgui::{Context, FontConfig, FontGlyphRanges, FontSource, Ui};
 use imgui_glium_renderer::Renderer;
 use imgui_winit_support::winit::dpi::LogicalSize;
@@ -19,10 +19,11 @@ pub fn simple_init<F: FnMut(&mut bool, &mut Ui) + 'static>(title: &str, run_ui: 
     init_with_startup(title, |_, _, _| {}, run_ui);
 }
 
-pub fn init_with_startup<FInit, FUi>(title: &str, mut startup: FInit, mut run_ui: FUi)
+pub fn init_with_startup<FInit, FUi, FRender>(title: &str, mut startup: FInit, mut run_ui: FUi, mut run_render: FRender)
 where
     FInit: FnMut(&mut Context, &mut Renderer, &Display<WindowSurface>) + 'static,
     FUi: FnMut(&mut bool, &mut Ui) + 'static,
+    FRender: FnMut(&mut Frame) + 'static,
 {
     let mut imgui = create_context();
 
@@ -93,6 +94,8 @@ where
 
                 let mut target = display.draw();
                 target.clear_color(1.0, 0.5, 1.0, 1.0);
+                run_render(&mut target);
+
                 platform.prepare_render(ui, &window);
                 let draw_data = imgui.render();
                 renderer
