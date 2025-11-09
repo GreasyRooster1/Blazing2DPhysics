@@ -2,18 +2,34 @@
 
 mod support;
 mod simulation;
-mod render;
+mod ui;
 
+use std::path::Path;
 use std::sync::{Arc, Mutex};
 use std::thread;
+use std::time::Instant;
+use glium::{implement_vertex, Display, Frame, Surface};
+use glium::glutin::surface::WindowSurface;
+use glium::winit::dpi::LogicalSize;
+use glium::winit::event::{Event, WindowEvent};
+use glium::winit::event_loop::EventLoop;
+use glium::winit::window::WindowAttributes;
 use imgui::*;
+use imgui_glium_renderer::Renderer;
+use imgui_winit_support::{HiDpiMode, WinitPlatform};
 use lazy_static::lazy_static;
-use crate::render::render;
-use crate::simulation::{simulation_step, SimState};
+use crate::simulation::{simulation_step, Object, SimState};
+use crate::support::{clipboard, create_context};
+use crate::ui::render_ui;
 
 lazy_static! {
     static ref sim_state_mutex: Mutex<SimState> = Mutex::new(SimState::start());
 }
+#[derive(Copy, Clone)]
+struct Vertex {
+    position: [f32; 3],
+}
+implement_vertex!(Vertex, position);
 
 fn main() {
 
@@ -23,19 +39,124 @@ fn main() {
             simulation_step(&mut *sim_state_mutex.lock().unwrap());
         }
     });
-
-    support::simple_init(file!(), move |_, ui,state| {
-        render_ui(ui,state)
-    }, |frame,display,state|{
-        render(frame,display,state);
-    });
+    start("Sim")
 }
 
-fn render_ui(ui: &mut Ui,sim_state: &mut SimState){
-    ui.window( "Stats")
-        .size([300.0, 100.0], Condition::FirstUseEver)
-        .build(|| {
-            ui.text(format!("step: {}",sim_state.step));
+pub fn start(title:&str) {
+    let mut imgui = create_context();
+
+    let title = match Path::new(&title).file_name() {
+        Some(file_name) => file_name.to_str().unwrap(),
+        None => title,
+    };
+    let event_loop = EventLoop::new().expect("Failed to create EventLoop");
+
+    let window_attributes = WindowAttributes::default()
+        .with_title(title)
+        .with_inner_size(LogicalSize::new(1024, 768));
+    let (window, display) = glium::backend::glutin::SimpleWindowBuilder::new()
+        .set_window_builder(window_attributes)
+        .build(&event_loop);
+    let mut renderer = Renderer::new(&mut imgui, &display).expect("Failed to initialize renderer");
+
+    if let Some(backend) = clipboard::init() {
+        imgui.set_clipboard_backend(backend);
+    } else {
+        eprintln!("Failed to initialize clipboard");
+    }
+
+    let mut platform = WinitPlatform::new(&mut imgui);
+    {
+        let dpi_mode = if let Ok(factor) = std::env::var("IMGUI_EXAMPLE_FORCE_DPI_FACTOR") {
+            // Allow forcing of HiDPI factor for debugging purposes
+            match factor.parse::<f64>() {
+                Ok(f) => HiDpiMode::Locked(f),
+                Err(e) => panic!("Invalid scaling factor: {}", e),
+            }
+        } else {
+            HiDpiMode::Default
+        };
+
+        platform.attach_window(imgui.io_mut(), &window, dpi_mode);
+    }
+
+    let mut last_frame = Instant::now();
+    {
+        let sim_state = sim_state_mutex.lock().expect("Failed to lock sim_state");
+        let vertices = construct_vertices(&sim_state.objects);
+        let vertex_buffer = glium::VertexBuffer::dynamic(&display, &vertices).expect("Failed to create vertex buffer");
+    }
+
+    #[allow(deprecated)]
+    event_loop
+        .run(move |event, window_target| match event {
+            Event::WindowEvent {
+                event: WindowEvent::RedrawRequested,
+                ..
+            } => {
+                let ui = imgui.frame();
+                let mut run = true;
+
+                let mut sim_state = sim_state_mutex.lock().expect("Failed to lock sim_state");
+                render_ui(ui,&mut sim_state);
+                if !run {
+                    window_target.exit();
+                }
+
+                let mut target = display.draw();
+                target.clear_color(0.0,0.0,0.0, 1.0);
+
+                render(&mut target, &display,&mut sim_state,vertex_buffer);
+                drop(sim_state);
+
+                platform.prepare_render(ui, &window);
+                let draw_data = imgui.render();
+                renderer
+                    .render(&mut target, draw_data)
+                    .expect("Rendering failed");
+                target.finish().expect("Failed to swap buffers");
+            }
+            Event::NewEvents(_) => {
+                let now = Instant::now();
+                imgui.io_mut().update_delta_time(now - last_frame);
+                last_frame = now;
+            }
+            Event::AboutToWait => {
+                platform
+                    .prepare_frame(imgui.io_mut(), &window)
+                    .expect("Failed to prepare frame");
+                window.request_redraw();
+            }
+            Event::WindowEvent {
+                event: WindowEvent::Resized(new_size),
+                ..
+            } => {
+                if new_size.width > 0 && new_size.height > 0 {
+                    display.resize((new_size.width, new_size.height));
+                }
+                platform.handle_event(imgui.io_mut(), &window, &event);
+            }
+            Event::WindowEvent {
+                event: WindowEvent::CloseRequested,
+                ..
+            } => window_target.exit(),
+            event => {
+                platform.handle_event(imgui.io_mut(), &window, &event);
+            }
+        })
+        .expect("EventLoop error");
+}
+
+pub fn render(frame:&mut Frame, display:&Display<WindowSurface>, sim_state:&mut SimState, vertex_buffer:&glium::VertexBuffer<Vertex>){
+    
+}
+
+pub fn construct_vertices(objects:&Vec<Object>) -> Vec<Vertex> {
+    let mut vertices = Vec::new();
+    for obj in objects {
+        vertices.push(Vertex{
+            position: [obj.pos_current.x, obj.pos_current.y, 0.0],
         });
+    }
+    vertices
 }
-
