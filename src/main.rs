@@ -2,6 +2,7 @@
 
 mod support;
 mod simulation;
+mod render;
 
 use std::sync::{Arc, Mutex};
 use std::thread;

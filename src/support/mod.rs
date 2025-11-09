@@ -92,7 +92,7 @@ where
                 }
 
                 let mut target = display.draw();
-                target.clear_color_srgb(1.0, 1.0, 1.0, 1.0);
+                target.clear_color(1.0, 0.5, 1.0, 1.0);
                 platform.prepare_render(ui, &window);
                 let draw_data = imgui.render();
                 renderer
