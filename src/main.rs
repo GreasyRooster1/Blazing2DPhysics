@@ -26,8 +26,8 @@ fn main() {
 
     support::simple_init(file!(), move |_, ui,state| {
         render_ui(ui,state)
-    }, |frame,state|{
-        render(frame,state);
+    }, |frame,display,state|{
+        render(frame,display,state);
     });
 }
 

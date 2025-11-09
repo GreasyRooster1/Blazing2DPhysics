@@ -21,7 +21,7 @@ pub const FONT_SIZE: f32 = 18.0;
 pub fn simple_init<FUi, FRender>(title: &str,  mut run_ui: FUi, mut run_render: FRender)
 where
     FUi: FnMut(&mut bool, &mut Ui, &mut SimState) + 'static,
-    FRender: FnMut(&mut Frame, &mut SimState) + 'static,
+    FRender: FnMut(&mut Frame, Display<WindowSurface>, &mut SimState) + 'static,
 {
     init_with_startup(title, |_, _, _| {}, run_ui, run_render);
 }
@@ -30,7 +30,7 @@ pub fn init_with_startup<FInit, FUi, FRender>(title: &str, mut startup: FInit, m
 where
     FInit: FnMut(&mut Context, &mut Renderer, &Display<WindowSurface>) + 'static,
     FUi: FnMut(&mut bool, &mut Ui, &mut SimState) + 'static,
-    FRender: FnMut(&mut Frame, &mut SimState) + 'static,
+    FRender: FnMut(&mut Frame, Display<WindowSurface>, &mut SimState) + 'static,
 {
     let mut imgui = create_context();
 
@@ -103,7 +103,7 @@ where
                 let mut target = display.draw();
                 target.clear_color(0.0,0.0,0.0, 1.0);
 
-                run_render(&mut target,&mut sim_state);
+                run_render(&mut target, display,&mut sim_state);
                 drop(sim_state);
 
                 platform.prepare_render(ui, &window);
