@@ -8,7 +8,7 @@ use std::path::Path;
 use std::sync::{Arc, Mutex};
 use std::thread;
 use std::time::Instant;
-use glium::{implement_vertex, Display, Frame, Program, Surface};
+use glium::{implement_vertex, uniform, Display, Frame, Program, Surface};
 use glium::glutin::surface::WindowSurface;
 use glium::index::{IndicesSource, NoIndices};
 use glium::winit::dpi::LogicalSize;
@@ -153,7 +153,10 @@ pub fn start(title:&str) {
 
 pub fn render(frame:&mut Frame, display:&Display<WindowSurface>, sim_state:&mut SimState, vertex_buffer:&glium::VertexBuffer<Vertex>, circle_shader: &Program, indices: NoIndices){
 
-    frame.draw(vertex_buffer, &indices, circle_shader, &glium::uniforms::EmptyUniforms,
+    let uniforms = uniform! {
+        scale: sim_state.scale,
+    };
+    frame.draw(vertex_buffer, &indices, circle_shader, &uniforms,
                 &Default::default()).unwrap();
 }
 

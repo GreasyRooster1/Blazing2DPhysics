@@ -5,6 +5,7 @@ use rand::Rng;
 pub struct SimState{
     pub step:u32,
     pub objects:Vec<Object>,
+    pub scale: f32
 }
 
 impl SimState{
@@ -12,6 +13,7 @@ impl SimState{
         SimState{
             step:0,
             objects: create_random_objects(100),
+            scale: 100.0
         }
     }
 }
