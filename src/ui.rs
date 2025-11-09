@@ -7,5 +7,6 @@ pub fn render_ui(ui: &mut Ui, sim_state: &mut SimState){
         .build(|| {
             ui.text(format!("step: {}",sim_state.step));
             ui.text(format!("obj count: {}",sim_state.objects.len()));
+            ui.text(format!("scale: {}",sim_state.scale));
         });
 }
