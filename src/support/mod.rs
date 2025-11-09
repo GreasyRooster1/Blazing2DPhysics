@@ -15,8 +15,12 @@ mod clipboard;
 pub const FONT_SIZE: f32 = 18.0;
 
 #[allow(dead_code)] // annoyingly, RA yells that this is unusued
-pub fn simple_init<F: FnMut(&mut bool, &mut Ui) + 'static>(title: &str, run_ui: F) {
-    init_with_startup(title, |_, _, _| {}, run_ui);
+pub fn simple_init<FUi, FRender>(title: &str,  mut run_ui: FUi, mut run_render: FRender)
+where
+    FUi: FnMut(&mut bool, &mut Ui) + 'static,
+    FRender: FnMut(&mut Frame) + 'static,
+{
+    init_with_startup(title, |_, _, _| {}, run_ui, run_render);
 }
 
 pub fn init_with_startup<FInit, FUi, FRender>(title: &str, mut startup: FInit, mut run_ui: FUi, mut run_render: FRender)

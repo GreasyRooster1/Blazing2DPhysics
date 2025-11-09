@@ -8,6 +8,7 @@ use std::sync::{Arc, Mutex};
 use std::thread;
 use imgui::*;
 use lazy_static::lazy_static;
+use crate::render::render;
 use crate::simulation::{simulation_step, SimState};
 
 lazy_static! {
@@ -25,7 +26,7 @@ fn main() {
 
     support::simple_init(file!(), move |_, ui| {
         render_ui(ui,&mut *sim_state_mutex.lock().unwrap())
-    });
+    },render);
 }
 
 fn render_ui(ui: &mut Ui,sim_state: &mut SimState){
