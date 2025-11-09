@@ -101,7 +101,7 @@ where
                 }
 
                 let mut target = display.draw();
-                target.clear_color(1.0, 0.5, 1.0, 1.0);
+                target.clear_color(0.0,0.0,0.0, 1.0);
 
                 run_render(&mut target,&mut sim_state);
                 drop(sim_state);
