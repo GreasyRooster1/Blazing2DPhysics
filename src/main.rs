@@ -28,7 +28,7 @@ lazy_static! {
 }
 #[derive(Copy, Clone)]
 pub struct Vertex {
-    position: [f32; 3],
+    position: [f32; 2],
 }
 implement_vertex!(Vertex, position);
 
@@ -152,6 +152,7 @@ pub fn start(title:&str) {
 }
 
 pub fn render(frame:&mut Frame, display:&Display<WindowSurface>, sim_state:&mut SimState, vertex_buffer:&glium::VertexBuffer<Vertex>, circle_shader: &Program, indices: NoIndices){
+
     frame.draw(vertex_buffer, &indices, circle_shader, &glium::uniforms::EmptyUniforms,
                 &Default::default()).unwrap();
 }
@@ -160,7 +161,7 @@ pub fn construct_vertices(objects:&Vec<Object>) -> Vec<Vertex> {
     let mut vertices = Vec::new();
     for obj in objects {
         vertices.push(Vertex{
-            position: [obj.pos_current.x, obj.pos_current.y, 0.0],
+            position: [obj.pos_current.x, obj.pos_current.y],
         });
     }
     vertices

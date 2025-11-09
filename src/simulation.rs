@@ -42,8 +42,8 @@ pub fn create_random_objects(amt:i32) -> Vec<Object>{
     for _ in 0..amt{
         objs.push(Object::new(
             Vec2::new(
-            rng.random_range(-5.0..5.0),
-            rng.random_range(-5.0..5.0)
+            rng.random_range(-1.0..1.0),
+            rng.random_range(-1.0..1.0)
             )))
     }
 
