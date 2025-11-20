@@ -2,6 +2,7 @@ use std::sync::Mutex;
 use glam::Vec2;
 use rand::Rng;
 
+#[derive(Clone)]
 pub struct SimState{
     pub step:u32,
     pub objects:Vec<Object>,
@@ -18,6 +19,7 @@ impl SimState{
     }
 }
 
+#[derive(Clone)]
 pub struct Object{
     pub pos_current: Vec2,
     pub pos_old: Vec2,

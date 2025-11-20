@@ -7,7 +7,7 @@ mod ui;
 use std::path::Path;
 use std::sync::{Arc, Mutex};
 use std::thread;
-use std::time::Instant;
+use std::time::{Duration, Instant};
 use glium::{implement_vertex, uniform, Display, Frame, Program, Surface};
 use glium::glutin::surface::WindowSurface;
 use glium::index::{IndicesSource, NoIndices};
@@ -101,7 +101,10 @@ pub fn start(title:&str) {
                 let ui = imgui.frame();
                 let mut run = true;
 
-                let mut sim_state = sim_state_mutex.lock().expect("Failed to lock sim_state");
+                let sim_state_guard = sim_state_mutex.lock().expect("Failed to lock sim_state");
+                let mut sim_state = (*sim_state_guard).clone();
+                drop(sim_state_guard);
+
                 render_ui(ui,&mut sim_state);
                 if !run {
                     window_target.exit();
@@ -111,6 +114,7 @@ pub fn start(title:&str) {
                 target.clear_color(0.0,0.0,0.0, 1.0);
 
                 render(&mut target, &display, &mut sim_state, &vertex_buffer,&circle_shader,indices);
+
                 drop(sim_state);
 
                 platform.prepare_render(ui, &window);
