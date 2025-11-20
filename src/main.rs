@@ -27,7 +27,7 @@ lazy_static! {
     static ref sim_state_mutex: Mutex<SimState> = Mutex::new(SimState::start());
 }
 
-pub const TARGET_FPS: u64 = 60;
+pub const TARGET_FPS: u64 = 609999;
 
 #[derive(Copy, Clone)]
 pub struct Vertex {
@@ -162,14 +162,14 @@ pub fn start(title:&str) {
 }
 
 pub fn get_elapsed(start_time: Instant) -> u64 {
-    let elapsed_time = Instant::now().duration_since(start_time).as_millis() as u64;
+    let elapsed_time = Instant::now().duration_since(start_time).as_nanos() as u64;
 
-    let wait_millis = match 1000 / TARGET_FPS >= elapsed_time {
-        true => 1000 / TARGET_FPS - elapsed_time,
+    let wait_millis = match 1_000_000_000 / TARGET_FPS >= elapsed_time {
+        true => 1_000_000_000 / TARGET_FPS - elapsed_time,
         false => 0
     };
-    thread::sleep(Duration::from_millis(wait_millis));
-    let elapsed_total = Instant::now().duration_since(start_time).as_millis() as u64;
+    thread::sleep(Duration::from_nanos(wait_millis));
+    let elapsed_total = Instant::now().duration_since(start_time).as_nanos() as u64;
     elapsed_total
 }
 
