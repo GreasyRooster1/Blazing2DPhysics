@@ -26,6 +26,9 @@ use crate::ui::render_ui;
 lazy_static! {
     static ref sim_state_mutex: Mutex<SimState> = Mutex::new(SimState::start());
 }
+
+pub const TARGET_FPS: u64 = 60;
+
 #[derive(Copy, Clone)]
 pub struct Vertex {
     position: [f32; 2],
@@ -98,23 +101,26 @@ pub fn start(title:&str) {
                 event: WindowEvent::RedrawRequested,
                 ..
             } => {
+                let start_time = Instant::now();
                 let ui = imgui.frame();
                 let mut run = true;
+
+                if !run {
+                    window_target.exit();
+                }
 
                 let sim_state_guard = sim_state_mutex.lock().expect("Failed to lock sim_state");
                 let mut sim_state = (*sim_state_guard).clone();
                 drop(sim_state_guard);
-
-                render_ui(ui,&mut sim_state);
-                if !run {
-                    window_target.exit();
-                }
 
                 let mut target = display.draw();
                 target.clear_color(0.0,0.0,0.0, 1.0);
 
                 render(&mut target, &display, &mut sim_state, &vertex_buffer,&circle_shader,indices);
 
+                let elapsed= get_elapsed(start_time);
+
+                render_ui(ui,&mut sim_state,elapsed);
                 drop(sim_state);
 
                 platform.prepare_render(ui, &window);
@@ -153,6 +159,18 @@ pub fn start(title:&str) {
             }
         })
         .expect("EventLoop error");
+}
+
+pub fn get_elapsed(start_time: Instant) -> u64 {
+    let elapsed_time = Instant::now().duration_since(start_time).as_millis() as u64;
+
+    let wait_millis = match 1000 / TARGET_FPS >= elapsed_time {
+        true => 1000 / TARGET_FPS - elapsed_time,
+        false => 0
+    };
+    thread::sleep(Duration::from_millis(wait_millis));
+
+    elapsed_time
 }
 
 pub fn render(frame:&mut Frame, display:&Display<WindowSurface>, sim_state:&mut SimState, vertex_buffer:&glium::VertexBuffer<Vertex>, circle_shader: &Program, indices: NoIndices){
