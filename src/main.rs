@@ -169,8 +169,8 @@ pub fn get_elapsed(start_time: Instant) -> u64 {
         false => 0
     };
     thread::sleep(Duration::from_millis(wait_millis));
-
-    elapsed_time
+    let elapsed_total = Instant::now().duration_since(start_time).as_millis() as u64;
+    elapsed_total
 }
 
 pub fn render(frame:&mut Frame, display:&Display<WindowSurface>, sim_state:&mut SimState, vertex_buffer:&glium::VertexBuffer<Vertex>, circle_shader: &Program, indices: NoIndices){

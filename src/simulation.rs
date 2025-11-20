@@ -38,6 +38,10 @@ impl Object {
             radius:1.0,
         }
     }
+
+    pub fn update(&mut self){
+        self.pos_current.x += 0.0001;
+    }
 }
 
 pub fn create_random_objects(amt:i32) -> Vec<Object>{
@@ -55,5 +59,9 @@ pub fn create_random_objects(amt:i32) -> Vec<Object>{
 }
 
 pub fn simulation_step(sim_state: &mut SimState){
+    for obj in &mut sim_state.objects{
+        obj.update();
+    }
+
     sim_state.step += 1;
 }
