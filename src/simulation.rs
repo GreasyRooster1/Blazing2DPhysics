@@ -1,3 +1,4 @@
+use std::cmp::max;
 use std::sync::Mutex;
 use glam::Vec2;
 use rand::Rng;
@@ -62,6 +63,19 @@ impl Object {
         self.accelerate(Vec2::new(0.0,GRAVITY));
     }
 
+    pub fn apply_border_constraint(&mut self){
+        let center = Vec2::ZERO;
+        let radius: f32 = 100.0;
+
+        let axis = center - self.pos_current;
+        let dist = axis.length_squared().max(0.0001);
+        if dist > radius.powf(2.0){
+            let n = Vec2::new(axis.x/dist, axis.y/dist);
+            let delta = radius+self.radius - dist;
+            self.pos_current -= n*delta;
+        }
+    }
+
     pub fn get_vel(&self) -> Vec2 {
         self.pos_current-self.pos_old
     }
@@ -91,6 +105,7 @@ pub fn simulation_step(sim_state: &mut SimState){
 
     for obj in &mut sim_state.objects{
         obj.apply_forces();
+        obj.apply_border_constraint();
         obj.update(dt_squared);
     }
 
