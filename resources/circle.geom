@@ -6,8 +6,13 @@ uniform float scale;
 
 out vec2 triCenter;
 
+in VS_OUT {
+    vec3 color;
+    float radius;
+} gs_in[];
+
 void main() {
-    float scaleFactor = 1.0/scale;
+    float scaleFactor = 1.0/scale * gs_in[0].radius;
     vec4 center = vec4(gl_in[0].gl_Position.xyz, 1.0);
 
     triCenter = center.xy;

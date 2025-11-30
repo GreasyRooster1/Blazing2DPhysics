@@ -36,6 +36,8 @@ pub const GRAVITY: f32 = -9.81;
 #[derive(Copy, Clone)]
 pub struct Vertex {
     position: [f32; 2],
+    radius: f32,
+    color: [f32; 3],
 }
 implement_vertex!(Vertex, position);
 
@@ -226,6 +228,8 @@ pub fn construct_vertices(objects:&Vec<Object>) -> Vec<Vertex> {
     for obj in objects {
         vertices.push(Vertex{
             position: [obj.pos_current.x, obj.pos_current.y],
+            radius: obj.radius,
+            color:[1.0,1.0,1.0],
         });
     }
     vertices
