@@ -33,7 +33,7 @@ pub fn timing_window(ui: &mut Ui, sim_state: &mut SimState){
 
             ui.text(format!("Sim calc time: ~{}ns",sim_state.timings.sim_calc_elapsed));
             let ups = 1_000_000_000.0/sim_state.timings.sim_calc_elapsed as f32;
-            ui.text(format!("updates/s: ~{}",ups));
+            ui.text(format!("potential updates/s: ~{}",ups));
             ui.text(format!("target updates: {}",TARGET_SIM_UPDATES));
             ui.text(format!("step: {}",sim_state.step));
         });
