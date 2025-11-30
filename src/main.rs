@@ -83,7 +83,7 @@ pub fn start(title:&str) {
 
     let window_attributes = WindowAttributes::default()
         .with_title(title)
-        .with_inner_size(LogicalSize::new(1024, 768));
+        .with_inner_size(LogicalSize::new(768, 768));
     let (window, display) = glium::backend::glutin::SimpleWindowBuilder::new()
         .set_window_builder(window_attributes)
         .build(&event_loop);

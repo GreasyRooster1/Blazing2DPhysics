@@ -20,7 +20,7 @@ impl SimState{
         SimState{
             timings: Default::default(),
             step:0,
-            objects: create_random_objects(100),
+            objects: create_random_objects(200),
             scale: 100.0
         }
     }
