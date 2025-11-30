@@ -195,7 +195,6 @@ pub fn render(frame:&mut Frame, display:&Display<WindowSurface>, sim_state:&mut 
 pub fn construct_vertices(objects:&Vec<Object>) -> Vec<Vertex> {
     let mut vertices = Vec::new();
     for obj in objects {
-        println!("{}", obj.pos_current.x);
         vertices.push(Vertex{
             position: [obj.pos_current.x, obj.pos_current.y],
         });
