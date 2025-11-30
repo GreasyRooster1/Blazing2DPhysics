@@ -4,6 +4,7 @@ mod support;
 mod simulation;
 mod ui;
 
+use std::arch::naked_asm;
 use std::path::Path;
 use std::sync::{Arc, Mutex};
 use std::thread;
@@ -137,6 +138,7 @@ pub fn start(title:&str) {
                 drop(sim_state_guard);
 
                 let mut target = display.draw();
+                let dimensions = target.get_dimensions();
                 target.clear_color(0.0,0.0,0.0, 1.0);
 
                 render(&mut target, &display, &mut sim_state,&circle_shader);
@@ -146,6 +148,7 @@ pub fn start(title:&str) {
                 let mut sim_state_guard = sim_state_mutex.lock().expect("Failed to lock sim_state");
                 (*sim_state_guard).timings.frame_calc_elapsed = frame_times.0;
                 (*sim_state_guard).timings.frame_full_elapsed = frame_times.1;
+                (*sim_state_guard).window_dimensions = Vec2::new(dimensions.0 as f32, dimensions.1 as f32);
                 drop(sim_state_guard);
 
 
@@ -183,7 +186,10 @@ pub fn start(title:&str) {
                 ..
             } => {
                 let mut sim_state_guard = sim_state_mutex.lock().expect("Failed to lock sim_state");
-                (*sim_state_guard).input.mouse_pos = Vec2::new(position.x as f32, position.y as f32);
+                (*sim_state_guard).input.mouse_pos = Vec2::new(
+                    position.x as f32 / sim_state_guard.window_dimensions.x * 200.0 -100.0,
+                    200.0 - position.y as f32 / sim_state_guard.window_dimensions.y * 200.0 -100.0,
+                );
                 drop(sim_state_guard);
             }
             Event::WindowEvent {
@@ -210,7 +216,7 @@ pub fn get_elapsed(start_time: Instant) -> (u64, u64) {
 }
 
 pub fn render(frame:&mut Frame, display:&Display<WindowSurface>, sim_state:&mut SimState, circle_shader: &Program){
-    let vertices = construct_vertices(&sim_state.objects);
+    let vertices = construct_vertices(&sim_state.objects,sim_state);
     let vertex_buffer = glium::VertexBuffer::dynamic(display, &vertices).expect("Failed to create vertex buffer");
     let indices = NoIndices(glium::index::PrimitiveType::Points);
 
@@ -223,13 +229,18 @@ pub fn render(frame:&mut Frame, display:&Display<WindowSurface>, sim_state:&mut 
                 &Default::default()).unwrap();
 }
 
-pub fn construct_vertices(objects:&Vec<Object>) -> Vec<Vertex> {
+pub fn construct_vertices(objects:&Vec<Object>,sim_state: &SimState) -> Vec<Vertex> {
 
     let mut vertices = Vec::new();
     vertices.push(Vertex{
         position: [0.0,0.0],
         radius: 100.0,
         color:[0.2,0.2,0.2],
+    });
+    vertices.push(Vertex{
+        position: [sim_state.input.mouse_pos.x,sim_state.input.mouse_pos.y],
+        radius: 5.0,
+        color:[0.1,0.1,0.1],
     });
     for obj in objects {
         vertices.push(Vertex{

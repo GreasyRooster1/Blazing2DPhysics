@@ -14,7 +14,8 @@ pub struct SimState{
     pub input: Input,
     pub step:u32,
     pub objects:Vec<Object>,
-    pub scale: f32
+    pub scale: f32,
+    pub window_dimensions: Vec2
 }
 
 impl SimState{
@@ -24,7 +25,8 @@ impl SimState{
             input:Default::default(),
             step:0,
             objects: create_random_objects(200),
-            scale: 100.0
+            scale: 100.0,
+            window_dimensions: Vec2::ZERO,
         }
     }
 }
