@@ -1,8 +1,11 @@
 use std::cmp::max;
+use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::Mutex;
 use glam::Vec2;
 use rand::Rng;
 use crate::GRAVITY;
+
+static NEXT_ID: AtomicUsize = AtomicUsize::new(1);
 
 #[derive(Clone)]
 pub struct SimState{
@@ -33,6 +36,8 @@ pub struct Timings{
 
 #[derive(Clone)]
 pub struct Object{
+    pub id:usize,
+
     pub pos_current: Vec2,
     pub pos_old: Vec2,
     pub acceleration: Vec2,
@@ -43,6 +48,8 @@ pub struct Object{
 impl Object {
     pub fn new(pos_current: Vec2) -> Self{
         Object{
+            id:NEXT_ID.fetch_add(1,Ordering::SeqCst),
+
             pos_current:pos_current.clone(),
             pos_old: pos_current.clone(),
             acceleration: Vec2::ZERO,
@@ -103,11 +110,34 @@ pub fn simulation_step(sim_state: &mut SimState){
     let dt =  sim_state.timings.sim_full_elapsed as f32/1_000_000_000.0;
     let dt_squared =dt*dt;
 
-    for obj in &mut sim_state.objects{
+    for obj in &mut sim_state.objects {
         obj.apply_forces();
         obj.apply_border_constraint();
+    }
+    solve_collisions_naive(sim_state);
+    for obj in &mut sim_state.objects {
         obj.update(dt_squared);
     }
 
     sim_state.step += 1;
+}
+
+pub fn solve_collisions_naive(sim_state: &mut SimState){
+    let num = sim_state.objects.len();
+    for i in 0..num{
+        for j in 0..num{
+            if i==j  {continue}
+            let obj1 = &sim_state.objects[i];
+            let obj2 = &sim_state.objects[j];
+
+            let axis = obj1.pos_current - obj2.pos_current;
+            let dist = axis.length().max(0.0001);
+            if dist < obj1.radius+obj2.radius{
+                let n = Vec2::new(axis.x/dist, axis.y/dist);
+                let delta = obj1.radius+obj2.radius - dist;
+                sim_state.objects[i].pos_current += (n*delta)/2.0;
+                sim_state.objects[j].pos_current -= (n*delta)/2.0;
+            }
+        }
+    }
 }
