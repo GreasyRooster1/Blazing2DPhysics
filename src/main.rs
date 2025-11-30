@@ -86,12 +86,6 @@ pub fn start(title:&str) {
 
     let mut last_frame = Instant::now();
 
-    let sim_state = sim_state_mutex.lock().expect("Failed to lock sim_state");
-    let vertices = construct_vertices(&sim_state.objects);
-    drop(sim_state);
-    let vertex_buffer = glium::VertexBuffer::new(&display, &vertices).expect("Failed to create vertex buffer");
-    let indices = NoIndices(glium::index::PrimitiveType::Points);
-
     let circle_shader = Program::from_source(&display, include_str!("../resources/circle.vert"), include_str!("../resources/circle.frag"), Some(include_str!("../resources/circle.geom"))).unwrap();
 
     #[allow(deprecated)]
@@ -116,7 +110,7 @@ pub fn start(title:&str) {
                 let mut target = display.draw();
                 target.clear_color(0.0,0.0,0.0, 1.0);
 
-                render(&mut target, &display, &mut sim_state, &vertex_buffer,&circle_shader,indices);
+                render(&mut target, &display, &mut sim_state,&circle_shader);
 
                 let elapsed= get_elapsed(start_time);
 
@@ -173,20 +167,24 @@ pub fn get_elapsed(start_time: Instant) -> u64 {
     elapsed_total
 }
 
-pub fn render(frame:&mut Frame, display:&Display<WindowSurface>, sim_state:&mut SimState, vertex_buffer:&glium::VertexBuffer<Vertex>, circle_shader: &Program, indices: NoIndices){
+pub fn render(frame:&mut Frame, display:&Display<WindowSurface>, sim_state:&mut SimState, circle_shader: &Program){
+    let vertices = construct_vertices(&sim_state.objects);
+    let vertex_buffer = glium::VertexBuffer::new(display, &vertices).expect("Failed to create vertex buffer");
+    let indices = NoIndices(glium::index::PrimitiveType::Points);
 
     let dimensions = frame.get_dimensions();
     let uniforms = uniform! {
         scale: sim_state.scale,
         res: [dimensions.0 as f32,dimensions.1 as f32],
     };
-    frame.draw(vertex_buffer, &indices, circle_shader, &uniforms,
+    frame.draw(&vertex_buffer, &indices, circle_shader, &uniforms,
                 &Default::default()).unwrap();
 }
 
 pub fn construct_vertices(objects:&Vec<Object>) -> Vec<Vertex> {
     let mut vertices = Vec::new();
     for obj in objects {
+        println!("{}", obj.pos_current.x);
         vertices.push(Vertex{
             position: [obj.pos_current.x, obj.pos_current.y],
         });

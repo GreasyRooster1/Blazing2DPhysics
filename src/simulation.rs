@@ -13,7 +13,7 @@ impl SimState{
     pub fn start() -> Self{
         SimState{
             step:0,
-            objects: create_random_objects(100),
+            objects: create_random_objects(1),
             scale: 100.0
         }
     }
@@ -31,8 +31,8 @@ pub struct Object{
 impl Object {
     pub fn new(pos_current: Vec2) -> Self{
         Object{
-            pos_current,
-            pos_old: pos_current,
+            pos_current:pos_current.clone(),
+            pos_old: pos_current.clone(),
             acceleration: Vec2::ZERO,
 
             radius:1.0,
@@ -40,7 +40,7 @@ impl Object {
     }
 
     pub fn update(&mut self){
-        self.pos_current.x += 0.0001;
+        self.pos_current.x += 0.0000001;
     }
 }
 
@@ -49,9 +49,9 @@ pub fn create_random_objects(amt:i32) -> Vec<Object>{
     let mut objs = vec![];
     for _ in 0..amt{
         objs.push(Object::new(
-            Vec2::new(
-            rng.random_range(-100.0..100.0),
-            rng.random_range(-100.0..100.0)
+            Vec2::new(0.0,0.0
+            // rng.random_range(-100.0..100.0),
+            // rng.random_range(-100.0..100.0)0
             )))
     }
 
