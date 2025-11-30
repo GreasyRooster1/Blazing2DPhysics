@@ -176,6 +176,12 @@ pub fn start(title:&str) {
                 platform.handle_event(imgui.io_mut(), &window, &event);
             }
             Event::WindowEvent {
+                event: WindowEvent::CursorMoved { device_id, position},
+                ..
+            } => {
+                println!("Mouse position: {:?}x{:?}", position.x, position.y);
+            }
+            Event::WindowEvent {
                 event: WindowEvent::CloseRequested,
                 ..
             } => window_target.exit(),
