@@ -68,8 +68,8 @@ impl Object {
         let radius: f32 = 100.0;
 
         let axis = center - self.pos_current;
-        let dist = axis.length_squared().max(0.0001);
-        if dist > radius.powf(2.0){
+        let dist = axis.length().max(0.0001);
+        if dist > radius+self.radius{
             let n = Vec2::new(axis.x/dist, axis.y/dist);
             let delta = radius+self.radius - dist;
             self.pos_current -= n*delta;
