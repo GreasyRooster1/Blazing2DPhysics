@@ -44,8 +44,8 @@ fn main() {
 
         let mut last_frame_time = Instant::now();
         loop {
-            let sim_state_guard = sim_state_mutex.lock().unwrap();
-            let sim_state = &mut *sim_state_mutex.lock().unwrap();
+            let mut sim_state_guard = sim_state_mutex.lock().unwrap();
+            let sim_state = &mut *sim_state_guard;
 
             simulation_step(sim_state);
             let elapsed = last_frame_time.elapsed();
