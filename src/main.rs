@@ -209,7 +209,7 @@ pub fn get_elapsed(start_time: Instant) -> (u64, u64) {
 
 pub fn render(frame:&mut Frame, display:&Display<WindowSurface>, sim_state:&mut SimState, circle_shader: &Program){
     let vertices = construct_vertices(&sim_state.objects);
-    let vertex_buffer = glium::VertexBuffer::new(display, &vertices).expect("Failed to create vertex buffer");
+    let vertex_buffer = glium::VertexBuffer::dynamic(display, &vertices).expect("Failed to create vertex buffer");
     let indices = NoIndices(glium::index::PrimitiveType::Points);
 
     let dimensions = frame.get_dimensions();
