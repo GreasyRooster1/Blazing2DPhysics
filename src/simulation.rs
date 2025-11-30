@@ -40,7 +40,7 @@ impl Object {
     }
 
     pub fn update(&mut self){
-        self.pos_current.x += 0.0000001;
+        self.pos_current.x += 0.01;
     }
 }
 

@@ -27,7 +27,8 @@ lazy_static! {
     static ref sim_state_mutex: Mutex<SimState> = Mutex::new(SimState::start());
 }
 
-pub const TARGET_FPS: u64 = 609999;
+pub const TARGET_FPS: u64 = 60;
+pub const TARGET_SIM_UPDATES: u64 = 24;
 
 #[derive(Copy, Clone)]
 pub struct Vertex {
@@ -39,8 +40,18 @@ fn main() {
 
 
     thread::spawn(move || {
+        let frame_duration = Duration::from_secs(1) / TARGET_SIM_UPDATES as u32;
+
+        let mut last_frame_time = Instant::now();
         loop {
             simulation_step(&mut *sim_state_mutex.lock().unwrap());
+            let elapsed_time = last_frame_time.elapsed();
+
+            if elapsed_time < frame_duration {
+                thread::sleep(frame_duration - elapsed_time);
+            }
+
+            last_frame_time = Instant::now();
         }
     });
     start("Sim")
