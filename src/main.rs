@@ -44,11 +44,14 @@ fn main() {
 
         let mut last_frame_time = Instant::now();
         loop {
+            let sim_state_guard = sim_state_mutex.lock().unwrap();
             let sim_state = &mut *sim_state_mutex.lock().unwrap();
+
             simulation_step(sim_state);
             let elapsed = last_frame_time.elapsed();
             sim_state.timings.sim_elapsed = elapsed.as_nanos() as u64;
-            drop(sim_state);
+
+            drop(sim_state_guard);
 
             if elapsed < frame_duration {
                 thread::sleep(frame_duration - elapsed);
