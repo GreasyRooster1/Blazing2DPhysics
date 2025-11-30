@@ -126,18 +126,22 @@ pub fn solve_collisions_naive(sim_state: &mut SimState){
     let num = sim_state.objects.len();
     for i in 0..num{
         for j in 0..num{
-            if i==j  {continue}
-            let obj1 = &sim_state.objects[i];
-            let obj2 = &sim_state.objects[j];
-
-            let axis = obj1.pos_current - obj2.pos_current;
-            let dist = axis.length().max(0.0001);
-            if dist < obj1.radius+obj2.radius{
-                let n = Vec2::new(axis.x/dist, axis.y/dist);
-                let delta = obj1.radius+obj2.radius - dist;
-                sim_state.objects[i].pos_current += (n*delta)/2.0;
-                sim_state.objects[j].pos_current -= (n*delta)/2.0;
-            }
+            solve_collision_between_objects(sim_state, i, j);
         }
+    }
+}
+
+pub fn solve_collision_between_objects(sim_state: &mut SimState, i:usize, j:usize){
+    if i==j  {return}
+    let obj1 = &sim_state.objects[i];
+    let obj2 = &sim_state.objects[j];
+
+    let axis = obj1.pos_current - obj2.pos_current;
+    let dist = axis.length().max(0.0001);
+    if dist < obj1.radius+obj2.radius{
+        let n = Vec2::new(axis.x/dist, axis.y/dist);
+        let delta = obj1.radius+obj2.radius - dist;
+        sim_state.objects[i].pos_current += (n*delta)/2.0;
+        sim_state.objects[j].pos_current -= (n*delta)/2.0;
     }
 }
