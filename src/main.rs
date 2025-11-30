@@ -8,6 +8,7 @@ use std::path::Path;
 use std::sync::{Arc, Mutex};
 use std::thread;
 use std::time::{Duration, Instant};
+use glam::Vec2;
 use glium::{implement_vertex, uniform, Display, Frame, Program, Surface};
 use glium::glutin::surface::WindowSurface;
 use glium::index::{IndicesSource, NoIndices};
@@ -179,7 +180,9 @@ pub fn start(title:&str) {
                 event: WindowEvent::CursorMoved { device_id, position},
                 ..
             } => {
-                println!("Mouse position: {:?}x{:?}", position.x, position.y);
+                let mut sim_state_guard = sim_state_mutex.lock().expect("Failed to lock sim_state");
+                (*sim_state_guard).input.mouse_pos = Vec2::new(position.x as f32, position.y as f32);
+                drop(sim_state_guard);
             }
             Event::WindowEvent {
                 event: WindowEvent::CloseRequested,

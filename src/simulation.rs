@@ -10,6 +10,7 @@ static NEXT_ID: AtomicUsize = AtomicUsize::new(1);
 #[derive(Clone)]
 pub struct SimState{
     pub timings: Timings,
+    pub input: Input,
     pub step:u32,
     pub objects:Vec<Object>,
     pub scale: f32
@@ -19,6 +20,7 @@ impl SimState{
     pub fn start() -> Self{
         SimState{
             timings: Default::default(),
+            input:Default::default(),
             step:0,
             objects: create_random_objects(200),
             scale: 100.0
@@ -32,6 +34,11 @@ pub struct Timings{
     pub frame_calc_elapsed:u64,
     pub sim_full_elapsed:u64,
     pub sim_calc_elapsed:u64,
+}
+
+#[derive(Clone, Default)]
+pub struct Input{
+    pub mouse_pos:Vec2,
 }
 
 #[derive(Clone)]
