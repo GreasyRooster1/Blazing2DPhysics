@@ -30,6 +30,8 @@ lazy_static! {
 pub const TARGET_FPS: u64 = 60;
 pub const TARGET_SIM_UPDATES: u64 = 24;
 
+pub const GRAVITY: f32 = -9.81;
+
 #[derive(Copy, Clone)]
 pub struct Vertex {
     position: [f32; 2],

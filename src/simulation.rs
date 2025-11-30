@@ -1,6 +1,7 @@
 use std::sync::Mutex;
 use glam::Vec2;
 use rand::Rng;
+use crate::GRAVITY;
 
 #[derive(Clone)]
 pub struct SimState{
@@ -57,6 +58,10 @@ impl Object {
         self.acceleration = Vec2::ZERO;
     }
 
+    pub fn apply_forces(&mut self){
+        self.accelerate(Vec2::new(0.0,GRAVITY));
+    }
+
     pub fn get_vel(&self) -> Vec2 {
         self.pos_current-self.pos_old
     }
@@ -85,6 +90,7 @@ pub fn simulation_step(sim_state: &mut SimState){
     let dt_squared =dt*dt;
 
     for obj in &mut sim_state.objects{
+        obj.apply_forces();
         obj.update(dt_squared);
     }
 
