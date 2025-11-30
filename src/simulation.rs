@@ -77,7 +77,9 @@ pub fn create_random_objects(amt:i32) -> Vec<Object>{
 }
 
 pub fn simulation_step(sim_state: &mut SimState){
-    let dt_squared = sim_state.timings.sim_full_elapsed.pow(2) as f32;
+    let dt =  sim_state.timings.sim_full_elapsed as f32/1_000_000_000.0;
+    let dt_squared =dt*dt;
+
     for obj in &mut sim_state.objects{
         obj.update(dt_squared);
     }
