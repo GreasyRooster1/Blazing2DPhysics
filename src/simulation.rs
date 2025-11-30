@@ -60,6 +60,10 @@ impl Object {
     pub fn get_vel(&self) -> Vec2 {
         self.pos_current-self.pos_old
     }
+
+    pub fn accelerate(&mut self, acc:Vec2){
+        self.acceleration += acc;
+    }
 }
 
 pub fn create_random_objects(amt:i32) -> Vec<Object>{
