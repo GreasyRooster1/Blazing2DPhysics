@@ -44,11 +44,14 @@ fn main() {
 
         let mut last_frame_time = Instant::now();
         loop {
-            simulation_step(&mut *sim_state_mutex.lock().unwrap());
-            let elapsed_time = last_frame_time.elapsed();
+            let sim_state = &mut *sim_state_mutex.lock().unwrap();
+            simulation_step(sim_state);
+            let elapsed = last_frame_time.elapsed();
+            sim_state.timings.sim_elapsed = elapsed.as_nanos() as u64;
+            drop(sim_state);
 
-            if elapsed_time < frame_duration {
-                thread::sleep(frame_duration - elapsed_time);
+            if elapsed < frame_duration {
+                thread::sleep(frame_duration - elapsed);
             }
 
             last_frame_time = Instant::now();
@@ -125,8 +128,12 @@ pub fn start(title:&str) {
 
                 let elapsed= get_elapsed(start_time);
 
-                render_ui(ui,&mut sim_state,elapsed);
-                drop(sim_state);
+                let mut sim_state_guard = sim_state_mutex.lock().expect("Failed to lock sim_state");
+                (*sim_state_guard).timings.frame_elapsed = elapsed;
+                drop(sim_state_guard);
+
+
+                render_ui(ui,&mut sim_state);
 
                 platform.prepare_render(ui, &window);
                 let draw_data = imgui.render();
