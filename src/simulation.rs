@@ -4,6 +4,7 @@ use rand::Rng;
 
 #[derive(Clone)]
 pub struct SimState{
+    pub timings: Timings,
     pub step:u32,
     pub objects:Vec<Object>,
     pub scale: f32
@@ -12,11 +13,18 @@ pub struct SimState{
 impl SimState{
     pub fn start() -> Self{
         SimState{
+            timings: Default::default(),
             step:0,
             objects: create_random_objects(1),
             scale: 100.0
         }
     }
+}
+
+#[derive(Clone, Default)]
+pub struct Timings{
+    pub frame_elapsed:u64,
+    pub sim_elapsed:u64,
 }
 
 #[derive(Clone)]

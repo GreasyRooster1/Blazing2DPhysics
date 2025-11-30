@@ -25,6 +25,11 @@ pub fn timing_window(ui: &mut Ui, sim_state: &mut SimState, elapsed: u64){
             
             let fps = 1_000_000_000.0/elapsed as f32;
             ui.text(format!("Fps: ~{}",fps));
+
+            ui.text(format!("Delta time: ~{}ns",elapsed));
+
+            let fps = 1_000_000_000.0/elapsed as f32;
+            ui.text(format!("Fps: ~{}",fps));
             ui.text(format!("step: {}",sim_state.step));
         });
 }
