@@ -17,7 +17,7 @@ void main() {
     vec4 center = vec4(gl_in[0].gl_Position.xyz, 1.0);
 
     triCenter = center.xy;
-    obj_color = vec3(gs_in[0].color.rgb);
+    obj_color = gs_in[0].color;
 
     // Emit the tri verticies
     gl_Position = (center + vec4(0.0, 2.0,0.0,0.0)* scaleFactor) ;
