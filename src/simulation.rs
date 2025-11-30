@@ -59,9 +59,9 @@ pub fn create_random_objects(amt:i32) -> Vec<Object>{
     let mut objs = vec![];
     for _ in 0..amt{
         objs.push(Object::new(
-            Vec2::new(0.0,0.0
-            // rng.random_range(-100.0..100.0),
-            // rng.random_range(-100.0..100.0)0
+            Vec2::new(
+            rng.random_range(-100.0..100.0),
+            rng.random_range(-100.0..100.0)
             )))
     }
 
