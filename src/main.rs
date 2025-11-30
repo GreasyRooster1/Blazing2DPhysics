@@ -48,13 +48,13 @@ fn main() {
             let sim_state = &mut *sim_state_guard;
 
             simulation_step(sim_state);
-            let elapsed = last_frame_time.elapsed();
-            sim_state.timings.sim_elapsed = elapsed.as_nanos() as u64;
+            let elapsed_calc = last_frame_time.elapsed();
+            sim_state.timings.sim_calc_elapsed = elapsed_calc.as_nanos() as u64;
 
             drop(sim_state_guard);
 
-            if elapsed < frame_duration {
-                thread::sleep(frame_duration - elapsed);
+            if elapsed_calc < frame_duration {
+                thread::sleep(frame_duration - elapsed_calc);
             }
 
             last_frame_time = Instant::now();
@@ -129,10 +129,11 @@ pub fn start(title:&str) {
 
                 render(&mut target, &display, &mut sim_state,&circle_shader);
 
-                let elapsed= get_elapsed(start_time);
+                let frame_times= get_elapsed(start_time);
 
                 let mut sim_state_guard = sim_state_mutex.lock().expect("Failed to lock sim_state");
-                (*sim_state_guard).timings.frame_elapsed = elapsed;
+                (*sim_state_guard).timings.frame_calc_elapsed = frame_times.0;
+                (*sim_state_guard).timings.frame_full_elapsed = frame_times.1;
                 drop(sim_state_guard);
 
 
@@ -176,7 +177,7 @@ pub fn start(title:&str) {
         .expect("EventLoop error");
 }
 
-pub fn get_elapsed(start_time: Instant) -> u64 {
+pub fn get_elapsed(start_time: Instant) -> (u64, u64) {
     let elapsed_time = Instant::now().duration_since(start_time).as_nanos() as u64;
 
     let wait_millis = match 1_000_000_000 / TARGET_FPS >= elapsed_time {
@@ -185,7 +186,7 @@ pub fn get_elapsed(start_time: Instant) -> u64 {
     };
     thread::sleep(Duration::from_nanos(wait_millis));
     let elapsed_total = Instant::now().duration_since(start_time).as_nanos() as u64;
-    elapsed_total
+    (elapsed_time,elapsed_total)
 }
 
 pub fn render(frame:&mut Frame, display:&Display<WindowSurface>, sim_state:&mut SimState, circle_shader: &Program){

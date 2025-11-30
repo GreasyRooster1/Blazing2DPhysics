@@ -23,8 +23,10 @@ impl SimState{
 
 #[derive(Clone, Default)]
 pub struct Timings{
-    pub frame_elapsed:u64,
-    pub sim_elapsed:u64,
+    pub frame_full_elapsed:u64,
+    pub frame_calc_elapsed:u64,
+    pub sim_full_elapsed:u64,
+    pub sim_calc_elapsed:u64,
 }
 
 #[derive(Clone)]
