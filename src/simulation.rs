@@ -95,6 +95,16 @@ impl Object {
             self.pos_current = center+n*delta;
         }
     }
+    pub fn apply_mouse_constraint(&mut self,mouse_pos: Vec2){
+
+        let axis = self.pos_current-mouse_pos;
+        let dist = axis.length().max(0.0001);
+        if dist < 5.0+self.radius{
+            let n = Vec2::new(axis.x/dist, axis.y/dist);
+            let delta = 5.0+self.radius;
+            self.pos_current = mouse_pos+n*delta;
+        }
+    }
 
     pub fn get_vel(&self) -> Vec2 {
         self.pos_current-self.pos_old
@@ -136,6 +146,7 @@ pub fn simulation_step(sim_state: &mut SimState){
     for obj in &mut sim_state.objects {
         obj.apply_forces();
         obj.apply_border_constraint();
+        obj.apply_mouse_constraint(sim_state.input.mouse_pos)
     }
     solve_collisions_naive(sim_state);
     for obj in &mut sim_state.objects {
