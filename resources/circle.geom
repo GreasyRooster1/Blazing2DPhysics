@@ -13,7 +13,7 @@ in VS_OUT {
 } gs_in[];
 
 void main() {
-    float scaleFactor = 1.0/scale * gs_in[0].radius * gs_in[0].color.r;
+    float scaleFactor = 1.0/scale * gs_in[0].radius;
     vec4 center = vec4(gl_in[0].gl_Position.xyz, 1.0);
 
     triCenter = center.xy;

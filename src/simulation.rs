@@ -1,7 +1,8 @@
 use std::cmp::max;
+use std::f32::consts::PI;
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::Mutex;
-use glam::Vec2;
+use glam::{Vec2, Vec3};
 use rand::Rng;
 use crate::GRAVITY;
 
@@ -50,18 +51,21 @@ pub struct Object{
     pub acceleration: Vec2,
 
     pub radius:f32,
+    pub color:Vec3,
 }
 
 impl Object {
     pub fn new(pos_current: Vec2) -> Self{
+        let id = NEXT_ID.fetch_add(1, Ordering::SeqCst);
         Object{
-            id:NEXT_ID.fetch_add(1,Ordering::SeqCst),
+            id,
 
             pos_current:pos_current.clone(),
             pos_old: pos_current.clone(),
             acceleration: Vec2::ZERO,
 
             radius:1.0,
+            color:get_color(id),
         }
     }
 
@@ -97,6 +101,16 @@ impl Object {
     pub fn accelerate(&mut self, acc:Vec2){
         self.acceleration += acc;
     }
+}
+
+pub fn get_color(id:usize) -> Vec3{
+    let phase = 100.0;
+    let t = (id as f32%phase)/phase;
+    let r = f32::sin(t);
+    let g = f32::sin(t + 0.33 * 2.0 * PI);
+    let b = f32::sin(t + 0.66 * 2.0 * PI);
+
+    Vec3::new(r,g,b)
 }
 
 pub fn create_random_objects(amt:i32) -> Vec<Object>{

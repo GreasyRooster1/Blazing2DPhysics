@@ -229,7 +229,7 @@ pub fn construct_vertices(objects:&Vec<Object>) -> Vec<Vertex> {
         vertices.push(Vertex{
             position: [obj.pos_current.x, obj.pos_current.y],
             radius: obj.radius,
-            color:[1.0,1.0,1.0],
+            color:[obj.color.x, obj.color.y, obj.color.z],
         });
     }
     vertices
