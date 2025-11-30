@@ -39,7 +39,7 @@ pub struct Vertex {
     radius: f32,
     color: [f32; 3],
 }
-implement_vertex!(Vertex, position);
+implement_vertex!(Vertex, position, radius, color);
 
 fn main() {
 

@@ -1,13 +1,13 @@
 #version 460
 
 in vec2 position;
-in vec3 color;
 in float radius;
+in vec3 color;
 uniform float scale;
 
 out VS_OUT {
-    vec3 color;
     float radius;
+    vec3 color;
 } vs_out;
 
 void main() {

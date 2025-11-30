@@ -4,14 +4,14 @@ out vec4 color;
 uniform float scale;
 uniform vec2 res;
 in vec2 triCenter;
+in vec3 obj_color;
 
 void main() {
     vec2 ndc = 2.0 * gl_FragCoord.xy / res - 1.0;
     float dist = length(ndc-triCenter);
 
-
     if(dist*scale<1.0) {
-        color = vec4(1.0,1.0,1.0,1.0);
+        color = vec4(obj_color,1.0);
     }else{
         discard;
     }
