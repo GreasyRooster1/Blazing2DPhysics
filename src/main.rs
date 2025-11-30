@@ -224,7 +224,13 @@ pub fn render(frame:&mut Frame, display:&Display<WindowSurface>, sim_state:&mut 
 }
 
 pub fn construct_vertices(objects:&Vec<Object>) -> Vec<Vertex> {
+
     let mut vertices = Vec::new();
+    vertices.push(Vertex{
+        position: [0.0,0.0],
+        radius: 100.0,
+        color:[0.2,0.2,0.2],
+    });
     for obj in objects {
         vertices.push(Vertex{
             position: [obj.pos_current.x, obj.pos_current.y],
@@ -232,5 +238,6 @@ pub fn construct_vertices(objects:&Vec<Object>) -> Vec<Vertex> {
             color:[obj.color.x, obj.color.y, obj.color.z],
         });
     }
+
     vertices
 }

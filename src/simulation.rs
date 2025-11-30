@@ -85,12 +85,12 @@ impl Object {
         let center = Vec2::ZERO;
         let radius: f32 = 100.0;
 
-        let axis = center - self.pos_current;
+        let axis = self.pos_current-center;
         let dist = axis.length().max(0.0001);
-        if dist > radius+self.radius{
+        if dist > radius-self.radius{
             let n = Vec2::new(axis.x/dist, axis.y/dist);
-            let delta = radius+self.radius - dist;
-            self.pos_current -= n*delta;
+            let delta = radius-self.radius;
+            self.pos_current = center+n*delta;
         }
     }
 

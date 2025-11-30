@@ -6,6 +6,7 @@ uniform float scale;
 
 out vec2 triCenter;
 out vec3 obj_color;
+out float radius;
 
 in VS_OUT {
     float radius;
@@ -18,6 +19,7 @@ void main() {
 
     triCenter = center.xy;
     obj_color = gs_in[0].color;
+    radius = gs_in[0].radius;
 
     // Emit the tri verticies
     gl_Position = (center + vec4(0.0, 2.0,0.0,0.0)* scaleFactor) ;
