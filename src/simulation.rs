@@ -49,8 +49,16 @@ impl Object {
         }
     }
 
-    pub fn update(&mut self){
-        self.pos_current.x += 0.01;
+    pub fn update(&mut self,dt_squared:f32){
+        let velocity = self.get_vel();
+        self.pos_old = self.pos_current;
+        self.pos_current+= velocity+self.acceleration*(dt_squared);
+
+        self.acceleration = Vec2::ZERO;
+    }
+
+    pub fn get_vel(&self) -> Vec2 {
+        self.pos_current-self.pos_old
     }
 }
 
@@ -69,8 +77,9 @@ pub fn create_random_objects(amt:i32) -> Vec<Object>{
 }
 
 pub fn simulation_step(sim_state: &mut SimState){
+    let dt_squared = sim_state.timings.sim_full_elapsed.pow(2) as f32
     for obj in &mut sim_state.objects{
-        obj.update();
+        obj.update(dt_squared);
     }
 
     sim_state.step += 1;

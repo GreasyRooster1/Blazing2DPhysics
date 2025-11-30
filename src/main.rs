@@ -57,6 +57,13 @@ fn main() {
                 thread::sleep(frame_duration - elapsed_calc);
             }
 
+
+            let mut sim_state_guard = sim_state_mutex.lock().unwrap();
+            let sim_state = &mut *sim_state_guard;
+            let elapsed_full = last_frame_time.elapsed();
+            sim_state.timings.sim_full_elapsed = elapsed_full.as_nanos() as u64;
+            drop(sim_state_guard);
+
             last_frame_time = Instant::now();
         }
     });
