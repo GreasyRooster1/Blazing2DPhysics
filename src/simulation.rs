@@ -117,7 +117,7 @@ impl Object {
 }
 
 struct CollisionCell{
-    pub objs:Vec<usize>,
+    pub objects:Vec<usize>,
     pub position:Vec2,
     pub size:Vec2,
 }
@@ -125,7 +125,7 @@ struct CollisionCell{
 impl CollisionCell{
     pub fn new(position:Vec2, size: Vec2) -> Self{
         CollisionCell {
-            objs:Vec::new(),
+            objects:Vec::new(),
             position,
             size,
         }
@@ -135,7 +135,15 @@ impl CollisionCell{
         for i in 0..sim_state.objects.len(){
             let obj = sim_state.objects[i];
             if obj.pos_current.x > self.position.x && obj.pos_current.y > self.position.y && obj.pos_current.x < self.position.x+self.size.x && obj.pos_current.y < self.position.y+self.size.y{
-                self.objs.push(i);
+                self.objects.push(i);
+            }
+        }
+    }
+
+    pub fn solve_collision_with_cell(&mut self,sim_state: &mut SimState, other:&CollisionCell){
+        for i in 0..self.objects.len(){
+            for j in 0..other.objects.len(){
+                solve_collision_between_objects(sim_state,i,j);
             }
         }
     }
