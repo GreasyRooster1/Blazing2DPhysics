@@ -24,7 +24,7 @@ impl SimState{
             timings: Default::default(),
             input:Default::default(),
             step:0,
-            objects: create_random_objects(200),
+            objects: create_random_objects(300),
             scale: 100.0,
             window_dimensions: Vec2::ZERO,
         }
@@ -117,12 +117,12 @@ impl Object {
 
 pub fn get_color(id:usize) -> Vec3{
     let phase = 100.0;
-    let t = (id as f32%phase)/phase;
+    let t = (id as f32%phase)/phase * 2.0*PI;
     let r = f32::sin(t);
     let g = f32::sin(t + 0.33 * 2.0 * PI);
     let b = f32::sin(t + 0.66 * 2.0 * PI);
 
-    Vec3::new(r,g,b)
+    Vec3::new(r*r,g*g,b*b)
 }
 
 pub fn create_random_objects(amt:i32) -> Vec<Object>{
