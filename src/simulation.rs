@@ -3,7 +3,7 @@ use std::f32::consts::PI;
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::Mutex;
 use glam::{Vec2, Vec3};
-use rand::Rng;
+use rand::{rng, Rng};
 use crate::GRAVITY;
 
 static NEXT_ID: AtomicUsize = AtomicUsize::new(1);
@@ -66,7 +66,7 @@ impl Object {
             pos_old: pos_current.clone(),
             acceleration: Vec2::ZERO,
 
-            radius:1.0,
+            radius:rng().random_range(1.0..2.0),
             color:get_color(id),
         }
     }
