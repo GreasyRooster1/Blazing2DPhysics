@@ -1,4 +1,3 @@
-use core::f32::math::ceil;
 use std::cmp::max;
 use std::f32::consts::PI;
 use std::sync::atomic::{AtomicUsize, Ordering};
@@ -163,10 +162,11 @@ impl CollisionCell{
         }
     }
 
-    pub fn solve_collision_with_cell(&mut self,sim_state: &mut SimState, other_index: i32){
+    pub fn solve_collision_between_cells(sim_state: &mut SimState,self_index: i32, other_index: i32){
         let other = &sim_state.collision_cells[other_index as usize];
+        let self_object = &sim_state.collision_cells[self_index as usize];
         let other_len = other.objects.len();
-        for i in 0..self.objects.len(){
+        for i in 0..self_object.objects.len(){
             for j in 0..other_len{
                 solve_collision_between_objects(&mut sim_state.objects, i, j);
             }
@@ -207,7 +207,8 @@ pub fn simulation_step(sim_state: &mut SimState){
         obj.apply_border_constraint();
         obj.apply_mouse_constraint(sim_state.input.mouse_pos)
     }
-    solve_collisions_naive(sim_state);
+    //solve_collisions_naive(sim_state);
+    solve_collisions_cells(sim_state);
     for obj in &mut sim_state.objects {
         obj.update(dt_squared);
     }
@@ -222,9 +223,12 @@ pub fn solve_collisions_cells(sim_state: &mut SimState){
             let current_cell = &mut sim_state.collision_cells[current_cell_index as usize];
             for k in -1..=1{
                 for l in -1..=1{
-                    let other_cell_index = k * sim_state.collision_grid_width + l;
+                    let x = i+k;
+                    let y = j+l;
+                    if x<0 || x>=sim_state.collision_grid_width || y<0 || y>=sim_state.collision_grid_width {continue;}
+                    let other_cell_index = x * sim_state.collision_grid_width + y;
 
-                    current_cell.solve_collision_with_cell(sim_state, other_cell_index);
+                    CollisionCell::solve_collision_between_cells(sim_state,current_cell_index, other_cell_index);
                 }
             }
         }
