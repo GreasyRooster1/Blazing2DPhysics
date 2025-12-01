@@ -1,4 +1,5 @@
 #![feature(random)]
+extern crate core;
 
 mod support;
 mod simulation;

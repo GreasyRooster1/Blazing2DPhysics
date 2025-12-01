@@ -1,3 +1,4 @@
+use core::f32::math::ceil;
 use std::cmp::max;
 use std::f32::consts::PI;
 use std::sync::atomic::{AtomicUsize, Ordering};
@@ -11,10 +12,13 @@ static NEXT_ID: AtomicUsize = AtomicUsize::new(1);
 
 #[derive(Clone)]
 pub struct SimState{
+    pub step:u32,
+    
+    pub objects:Vec<Object>,
+    pub collision_cells:Vec<CollisionCell>,
+
     pub timings: Timings,
     pub input: Input,
-    pub step:u32,
-    pub objects:Vec<Object>,
     pub scale: f32,
     pub window_dimensions: Vec2
 }
@@ -28,6 +32,7 @@ impl SimState{
             objects: create_random_objects(300),
             scale: 100.0,
             window_dimensions: Vec2::ZERO,
+            collision_cells: vec![],
         }
     }
 }
@@ -116,6 +121,7 @@ impl Object {
     }
 }
 
+#[derive(Clone)]
 struct CollisionCell{
     pub objects:Vec<usize>,
     pub position:Vec2,
@@ -129,6 +135,21 @@ impl CollisionCell{
             position,
             size,
         }
+    }
+    
+    pub fn create_cells(size:i32) -> Vec<CollisionCell>{
+        let grid_size = 200/size;
+        let mut cells = Vec::with_capacity((grid_size * grid_size) as usize);
+        for i in 0..grid_size{
+            for j in 0..grid_size{
+                cells.push(CollisionCell::new(
+                    Vec2::new((i * size) as f32, (j * size * grid_size) as f32),
+                    Vec2::new(grid_size as f32, grid_size as f32),
+                ))
+            }
+        }
+        
+        cells
     }
 
     pub fn populate_objects(&mut self,sim_state: &SimState){
@@ -188,6 +209,10 @@ pub fn simulation_step(sim_state: &mut SimState){
     }
 
     sim_state.step += 1;
+}
+
+pub fn solve_collisions_cells(sim_state: &mut SimState){
+    
 }
 
 pub fn solve_collisions_naive(sim_state: &mut SimState){
