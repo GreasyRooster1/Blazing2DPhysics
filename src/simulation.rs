@@ -153,9 +153,10 @@ impl CollisionCell{
         cells
     }
 
-    pub fn populate_objects(&mut self,sim_state: &SimState){
-        for i in 0..sim_state.objects.len(){
-            let obj = sim_state.objects[i];
+    pub fn populate_objects(&mut self,objects: &mut Vec<Object>){
+        self.objects.clear();
+        for i in 0..objects.len(){
+            let obj = objects[i];
             if obj.pos_current.x > self.position.x && obj.pos_current.y > self.position.y && obj.pos_current.x < self.position.x+self.size.x && obj.pos_current.y < self.position.y+self.size.y{
                 self.objects.push(i);
             }
@@ -168,7 +169,7 @@ impl CollisionCell{
         let other_len = other.objects.len();
         for i in 0..self_object.objects.len(){
             for j in 0..other_len{
-                solve_collision_between_objects(&mut sim_state.objects, i, j);
+                solve_collision_between_objects(&mut sim_state.objects, self_object.objects[i], other.objects[j]);
             }
         }
     }
@@ -208,12 +209,20 @@ pub fn simulation_step(sim_state: &mut SimState){
         obj.apply_mouse_constraint(sim_state.input.mouse_pos)
     }
     //solve_collisions_naive(sim_state);
+    populate_collision_cells(sim_state);
     solve_collisions_cells(sim_state);
     for obj in &mut sim_state.objects {
         obj.update(dt_squared);
     }
 
     sim_state.step += 1;
+}
+
+pub fn populate_collision_cells(sim_state: &mut SimState){
+    let objects = &mut sim_state.objects;
+    for cell in &mut sim_state.collision_cells {
+        cell.populate_objects(objects);
+    }
 }
 
 pub fn solve_collisions_cells(sim_state: &mut SimState){
