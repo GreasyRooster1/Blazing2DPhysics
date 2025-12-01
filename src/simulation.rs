@@ -13,9 +13,10 @@ static NEXT_ID: AtomicUsize = AtomicUsize::new(1);
 #[derive(Clone)]
 pub struct SimState{
     pub step:u32,
-    
+
     pub objects:Vec<Object>,
     pub collision_cells:Vec<CollisionCell>,
+    pub collision_grid_width:i32,
 
     pub timings: Timings,
     pub input: Input,
@@ -32,7 +33,8 @@ impl SimState{
             objects: create_random_objects(300),
             scale: 100.0,
             window_dimensions: Vec2::ZERO,
-            collision_cells: vec![],
+            collision_cells: CollisionCell::create_cells(2),
+            collision_grid_width: 200/2
         }
     }
 }
@@ -136,7 +138,7 @@ impl CollisionCell{
             size,
         }
     }
-    
+
     pub fn create_cells(size:i32) -> Vec<CollisionCell>{
         let grid_size = 200/size;
         let mut cells = Vec::with_capacity((grid_size * grid_size) as usize);
@@ -148,7 +150,7 @@ impl CollisionCell{
                 ))
             }
         }
-        
+
         cells
     }
 
@@ -161,10 +163,12 @@ impl CollisionCell{
         }
     }
 
-    pub fn solve_collision_with_cell(&mut self,sim_state: &mut SimState, other:&CollisionCell){
+    pub fn solve_collision_with_cell(&mut self,sim_state: &mut SimState, other_index: i32){
+        let other = &sim_state.collision_cells[other_index as usize];
+        let other_len = other.objects.len();
         for i in 0..self.objects.len(){
-            for j in 0..other.objects.len(){
-                solve_collision_between_objects(sim_state,i,j);
+            for j in 0..other_len{
+                solve_collision_between_objects(&mut sim_state.objects, i, j);
             }
         }
     }
@@ -212,29 +216,41 @@ pub fn simulation_step(sim_state: &mut SimState){
 }
 
 pub fn solve_collisions_cells(sim_state: &mut SimState){
-    
+    for i in 0..sim_state.collision_grid_width{
+        for j in 0..sim_state.collision_grid_width{
+            let current_cell_index = i * sim_state.collision_grid_width + j;
+            let current_cell = &mut sim_state.collision_cells[current_cell_index as usize];
+            for k in -1..=1{
+                for l in -1..=1{
+                    let other_cell_index = k * sim_state.collision_grid_width + l;
+
+                    current_cell.solve_collision_with_cell(sim_state, other_cell_index);
+                }
+            }
+        }
+    }
 }
 
 pub fn solve_collisions_naive(sim_state: &mut SimState){
     let num = sim_state.objects.len();
     for i in 0..num{
         for j in 0..num{
-            solve_collision_between_objects(sim_state, i, j);
+            solve_collision_between_objects(&mut sim_state.objects, i, j);
         }
     }
 }
 
-pub fn solve_collision_between_objects(sim_state: &mut SimState, i:usize, j:usize){
+pub fn solve_collision_between_objects(sim_state_objects: &mut Vec<Object>, i:usize, j:usize){
     if i==j  {return}
-    let obj1 = &sim_state.objects[i];
-    let obj2 = &sim_state.objects[j];
+    let obj1 = &sim_state_objects[i];
+    let obj2 = &sim_state_objects[j];
 
     let axis = obj1.pos_current - obj2.pos_current;
     let dist = axis.length().max(0.0001);
     if dist < obj1.radius+obj2.radius{
         let n = Vec2::new(axis.x/dist, axis.y/dist);
         let delta = obj1.radius+obj2.radius - dist;
-        sim_state.objects[i].pos_current += (n*delta)/2.0;
-        sim_state.objects[j].pos_current -= (n*delta)/2.0;
+        sim_state_objects[i].pos_current += (n*delta)/2.0;
+        sim_state_objects[j].pos_current -= (n*delta)/2.0;
     }
 }
