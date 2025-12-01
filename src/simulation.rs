@@ -3,6 +3,7 @@ use std::f32::consts::PI;
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::Mutex;
 use glam::{Vec2, Vec3};
+use glium::winit::dpi::Size;
 use rand::{rng, Rng};
 use crate::GRAVITY;
 
@@ -44,7 +45,7 @@ pub struct Input{
     pub mouse_pos:Vec2,
 }
 
-#[derive(Clone)]
+#[derive(Clone,Copy)]
 pub struct Object{
     pub id:usize,
 
@@ -112,6 +113,31 @@ impl Object {
 
     pub fn accelerate(&mut self, acc:Vec2){
         self.acceleration += acc;
+    }
+}
+
+struct CollisionCell{
+    pub objs:Vec<usize>,
+    pub position:Vec2,
+    pub size:Vec2,
+}
+
+impl CollisionCell{
+    pub fn new(position:Vec2, size: Vec2) -> Self{
+        CollisionCell {
+            objs:Vec::new(),
+            position,
+            size,
+        }
+    }
+
+    pub fn populate_objects(&mut self,sim_state: &SimState){
+        for i in 0..sim_state.objects.len(){
+            let obj = sim_state.objects[i];
+            if obj.pos_current.x > self.position.x && obj.pos_current.y > self.position.y && obj.pos_current.x < self.position.x+self.size.x && obj.pos_current.y < self.position.y+self.size.y{
+                self.objs.push(i);
+            }
+        }
     }
 }
 
